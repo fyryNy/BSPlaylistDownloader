@@ -20,7 +20,7 @@ Exception handling is really poor.\
 If it shows "[E] Error while fetching data", it's probably problem with connection to beatsaver api.\
 If it shows "[E] Error while downloading XXX from YYY", probably song name contains some special characters that Windows can't handle in folder names, like comas etc.\
 \
-Would fix it later.
+Would fix it later. Maybe.
 
 ## Screenshots
 ![Screen 1](https://i.imgur.com/p0yESI8.png)

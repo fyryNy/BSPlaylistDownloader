@@ -274,7 +274,9 @@ namespace BSPlaylistDownloader
                     await Task.Run(() => DownloadSong(richbox1text, richbox1color, songhash));
                 }
 
-                Thread.Sleep(250);
+                File.Copy(file, destfilepath);
+
+                Thread.Sleep(100);
 
                 progress1.Report(i);
             }

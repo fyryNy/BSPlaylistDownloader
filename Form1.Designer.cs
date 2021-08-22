@@ -48,9 +48,9 @@ namespace BSPlaylistDownloader
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(413, 565);
+            this.button1.Location = new System.Drawing.Point(413, 563);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.Size = new System.Drawing.Size(75, 25);
             this.button1.TabIndex = 1;
             this.button1.Text = "Close";
             this.button1.UseVisualStyleBackColor = true;
@@ -60,7 +60,7 @@ namespace BSPlaylistDownloader
             // 
             this.label1.AutoSize = true;
             this.label1.ForeColor = System.Drawing.SystemColors.ControlDark;
-            this.label1.Location = new System.Drawing.Point(12, 578);
+            this.label1.Location = new System.Drawing.Point(9, 578);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(90, 13);
             this.label1.TabIndex = 2;
@@ -68,9 +68,9 @@ namespace BSPlaylistDownloader
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(13, 196);
+            this.textBox1.Location = new System.Drawing.Point(12, 196);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(475, 20);
+            this.textBox1.Size = new System.Drawing.Size(476, 20);
             this.textBox1.TabIndex = 3;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             this.textBox1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.textBox1_MouseDoubleClick);
@@ -78,7 +78,8 @@ namespace BSPlaylistDownloader
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(10, 180);
+            this.label2.Location = new System.Drawing.Point(9, 180);
+            this.label2.Margin = new System.Windows.Forms.Padding(0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(103, 13);
             this.label2.TabIndex = 4;
@@ -88,7 +89,7 @@ namespace BSPlaylistDownloader
             // 
             this.label3.AutoSize = true;
             this.label3.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label3.Location = new System.Drawing.Point(12, 565);
+            this.label3.Location = new System.Drawing.Point(12, 563);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(51, 13);
             this.label3.TabIndex = 6;
@@ -97,9 +98,10 @@ namespace BSPlaylistDownloader
             // label4
             // 
             this.label4.ForeColor = System.Drawing.Color.DarkRed;
-            this.label4.Location = new System.Drawing.Point(10, 219);
+            this.label4.Location = new System.Drawing.Point(12, 219);
+            this.label4.Margin = new System.Windows.Forms.Padding(0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(478, 13);
+            this.label4.Size = new System.Drawing.Size(476, 13);
             this.label4.TabIndex = 7;
             this.label4.Text = " ";
             // 
@@ -117,6 +119,7 @@ namespace BSPlaylistDownloader
             // progressBar1
             // 
             this.progressBar1.Location = new System.Drawing.Point(288, 491);
+            this.progressBar1.MarqueeAnimationSpeed = 1;
             this.progressBar1.Maximum = 1;
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(200, 20);
@@ -126,7 +129,7 @@ namespace BSPlaylistDownloader
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(12, 491);
+            this.button2.Location = new System.Drawing.Point(288, 563);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(85, 25);
             this.button2.TabIndex = 10;
@@ -136,25 +139,26 @@ namespace BSPlaylistDownloader
             // 
             // openFileDialog1
             // 
-            this.openFileDialog1.FileName = "openFileDialog1";
+            this.openFileDialog1.Filter = ".bplist|*.bplist";
+            this.openFileDialog1.Multiselect = true;
             // 
             // label5
             // 
             this.label5.BackColor = System.Drawing.Color.Transparent;
-            this.label5.Location = new System.Drawing.Point(103, 491);
+            this.label5.Location = new System.Drawing.Point(12, 491);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(179, 20);
+            this.label5.Size = new System.Drawing.Size(270, 20);
             this.label5.TabIndex = 11;
-            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.label5.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             this.label5.Visible = false;
             // 
             // label6
             // 
-            this.label6.Location = new System.Drawing.Point(106, 517);
+            this.label6.Location = new System.Drawing.Point(12, 517);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(176, 20);
+            this.label6.Size = new System.Drawing.Size(270, 20);
             this.label6.TabIndex = 12;
-            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.label6.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             this.label6.Visible = false;
             // 
             // progressBar2

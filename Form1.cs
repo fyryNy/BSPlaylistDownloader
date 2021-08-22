@@ -6,7 +6,9 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -14,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace BSPlaylistDownloader
 {
@@ -23,6 +26,8 @@ namespace BSPlaylistDownloader
         private bool mouseDown;
         private Point lastLocation;
 
+        private string BSPath;
+        private string CustomLevelsPath;
         public Form1()
         {
             InitializeComponent();
@@ -82,7 +87,7 @@ namespace BSPlaylistDownloader
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
             string location = textBox1.Text;
-            if (Directory.Exists(location) && File.Exists(location + "/Beat Saber.exe"))
+            if (Directory.Exists(location) && File.Exists(location + "\\Beat Saber.exe"))
             {
                 label4.Text = "";
                 Configuration config = ConfigurationManager.OpenExeConfiguration(Application.ExecutablePath);
@@ -91,12 +96,12 @@ namespace BSPlaylistDownloader
                 config.Save(ConfigurationSaveMode.Modified);
                 ConfigurationManager.RefreshSection("appSettings");
 
-                if (!Directory.Exists(location + "/Playlists"))
+                if (!Directory.Exists(location + "\\Playlists"))
                 {
                     richTextBox1.SelectionColor = Color.DarkRed;
                     richTextBox1.AppendText("Directory \"Playlists\" does not exists.\n");
                     Directory.CreateDirectory(location + "/Playlists");
-                    if (Directory.Exists(location + "/Playlists"))
+                    if (Directory.Exists(location + "\\Playlists"))
                     {
                         richTextBox1.SelectionColor = Color.Green;
                         richTextBox1.AppendText("Created \"Playlists\" directory.\n");
@@ -104,18 +109,22 @@ namespace BSPlaylistDownloader
                     richTextBox1.SelectionColor = richTextBox1.ForeColor;
                 }
 
-                if (!Directory.Exists(location + "/Beat Saber_Data/CustomLevels"))
+                CustomLevelsPath = location + "\\Beat Saber_Data\\CustomLevels\\";
+
+                if (!Directory.Exists(CustomLevelsPath))
                 {
                     richTextBox1.SelectionColor = Color.DarkRed;
                     richTextBox1.AppendText("Directory \"/Beat Saber_Data/CustomLevels\" does not exists.\n");
-                    Directory.CreateDirectory(location + "/Beat Saber_Data/CustomLevels");
-                    if (Directory.Exists(location + "/Beat Saber_Data/CustomLevels"))
+                    Directory.CreateDirectory(CustomLevelsPath);
+                    if (Directory.Exists(CustomLevelsPath))
                     {
                         richTextBox1.SelectionColor = Color.Green;
                         richTextBox1.AppendText("Created \"/Beat Saber_Data/CustomLevels\" directory.\n");
                     }
                     richTextBox1.SelectionColor = richTextBox1.ForeColor;
                 }
+
+                BSPath = location;
 
                 button2.Enabled = true;
             }
@@ -133,12 +142,16 @@ namespace BSPlaylistDownloader
             {
                 var watch = System.Diagnostics.Stopwatch.StartNew();
 
+                button2.Enabled = false;
+
                 richTextBox1.SelectionColor = Color.Green;
                 richTextBox1.AppendText(String.Format("Loaded {0} playlists \n", openFileDialog1.FileNames.Length));
                 richTextBox1.SelectionColor = richTextBox1.ForeColor;
                 playlists = openFileDialog1.FileNames;
 
                 await RunParsePlaylistsAsync();
+
+                button2.Enabled = true;
 
                 watch.Stop();
                 var elapsedMs = watch.ElapsedMilliseconds;
@@ -164,13 +177,17 @@ namespace BSPlaylistDownloader
             label5.Visible = true;
             var label5text = new Progress<string>(value =>
             {
-                label5.Text = value;
+                label5.Text = String.Format("{0}/{1}", value, playlistscount);
             });
 
             progressBar2.Visible = true;
             var progress2 = new Progress<int>(value =>
             {
                 progressBar2.Value = value;
+            });
+            var progress2max = new Progress<int>(value =>
+            {
+                progressBar2.Maximum = value;
             });
             label6.Visible = true;
             var label6text = new Progress<string>(value =>
@@ -183,7 +200,7 @@ namespace BSPlaylistDownloader
                 richTextBox1.AppendText(value);
             });
 
-            await Task.Run(() => ParsePlaylists(progress1, label5text, progress2, label6text, richbox1text));
+            await Task.Run(() => ParsePlaylists(progress1, label5text, progress2, progress2max, label6text, richbox1text));
 
             progressBar1.Value = progressBar1.Maximum;
             label5.Text = String.Format("Completed");
@@ -192,34 +209,81 @@ namespace BSPlaylistDownloader
             progressBar2.Visible = false;
         }
 
-        private void ParsePlaylists(IProgress<int> progress1, IProgress<string> label5text, IProgress<int> progress2, IProgress<string> label6text, IProgress<string> richbox1text)
+        private async Task ParsePlaylists(IProgress<int> progress1, IProgress<string> label5text, IProgress<int> progress2, IProgress<int> progress2max, IProgress<string> label6text, IProgress<string> richbox1text)
         {
             int i = 0;
             var regex = new Regex(@"\r\n?|\n|\t", RegexOptions.Compiled);
             foreach (string file in playlists)
             {
+                ++i;
                 string jsonData = File.ReadAllText(file);
                 Playlist playlist = JsonConvert.DeserializeObject<Playlist>(jsonData);
 
-                string title = regex.Replace(playlist.playlistTitle, " - ");
+                string title = Trunc(regex.Replace(playlist.playlistTitle, " - "), 40);
                 string author = playlist.playlistAuthor;
                 int songcount = playlist.songs.Count;
 
-                i++;
+                richbox1text.Report(String.Format("Playlist \"{0}\" by {1} loaded, {2} songs. \n", title, author, songcount));
 
-                if (label5text != null)
-                    label5text.Report(String.Format("Downloading {0} {1}", title, i + 1));
+                label5text.Report(String.Format("{0} {1}", title, i));
 
-                //progressBar2.Value = 0;
-                //progressBar2.Maximum = songcount;
-                //label6.Text = String.Format("Downloading {0} songs", songcount);
+                progress2max.Report(songcount);
+                int ii = 0;
+                foreach (PlaylistItem playlistitem in playlist.songs)
+                {
+                    ++ii;
+                    var songtitle = Trunc(regex.Replace(playlistitem.songName, " - "), 40);
+                    label6text.Report(String.Format("{0} ({1}/{2})", songtitle, ii, songcount));
+                    progress2.Report(ii);
+                    string songhash = playlistitem.hash;
+                    await Task.Run(() => DownloadSong(richbox1text, songhash));
+                }
 
-                //richTextBox1.AppendText(String.Format("Playlist \"{0}\" by {1} loaded, {2} songs. \n", title, author, songcount));
+                Thread.Sleep(250);
+
                 if (progress1 != null)
                     progress1.Report(i);
-                Thread.Sleep(500);
             }
         }
+
+        private void DownloadSong(IProgress<string> richbox1text, string hash)
+        {
+            using (WebClient wc = new WebClient())
+            {
+                var jsonData = wc.DownloadString("https://api.beatsaver.com/maps/hash/" + hash);
+
+                //var song = JsonConvert.DeserializeObject<JToken>(jsonData);
+
+                dynamic convertObj = JObject.Parse(jsonData);
+
+                string songID = convertObj.id;
+                string songName = convertObj.metadata.songName;
+                string levelAuthorName = convertObj.metadata.levelAuthorName;
+                levelAuthorName = levelAuthorName.Replace(":", "");
+
+                string foldername = String.Format("{0} ({1} - {2})", songID, songName, levelAuthorName);
+                string folderpath = CustomLevelsPath + foldername;
+
+                if (!Directory.Exists(folderpath))
+                {
+                    string downloadUrl = convertObj.versions[0].downloadURL;
+                    string filepath = String.Format(folderpath + ".zip");
+                    try
+                    {
+                        wc.DownloadFile(downloadUrl, filepath);
+                        ZipFile.ExtractToDirectory(filepath, folderpath);
+                        File.Delete(filepath);
+                    }
+                    catch (Exception e)
+                    {
+                        richbox1text.Report(String.Format("{0}\n{1}\n", foldername, downloadUrl));
+                    }
+                    richbox1text.Report(String.Format("Downloaded {0} \n", foldername));
+                }
+            }
+        }
+
+        private string Trunc(string s, int len) => s?.Length > len ? String.Format("{0}...", s.Substring(0, len)) : s;
     }
 
     public class Playlist
@@ -228,10 +292,10 @@ namespace BSPlaylistDownloader
         public string playlistAuthor { get; set; }
         public string playlistDescription { get; set; }
         public string syncURL { get; set; }
-        public IList<Song> songs { get; set; }
+        public IList<PlaylistItem> songs { get; set; }
     }
 
-    public class Song
+    public class PlaylistItem
     {
         public string key { get; set; }
         public string hash { get; set; }

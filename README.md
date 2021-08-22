@@ -14,7 +14,7 @@ If Auto-Start is checked, installation will start immediately after selecting pl
 At this moment this works with .bplist playlists.
 
 ## Bugs
-Sometimes crashes if key names in json are different than expected ("name" instead of "songName".\
+Sometimes crashes if key names in json are different than expected ("name" instead of "songName").\
 \
 Exception handling is really poor.\
 If it shows "[E] Error while fetching data", it's probably problem with connection to beatsaver api.\

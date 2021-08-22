@@ -50,7 +50,7 @@ namespace BSPlaylistDownloader
 
             checkBox1.Checked = Convert.ToBoolean(ConfigurationManager.AppSettings.Get("AutoStart"));
 
-            var appVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            string appVersion = String.Format("{0}.{1}.{2}",Assembly.GetExecutingAssembly().GetName().Version.Major, Assembly.GetExecutingAssembly().GetName().Version.Minor, Assembly.GetExecutingAssembly().GetName().Version.Build);
             label3.Text = String.Format("{0}", appVersion);
         }
 

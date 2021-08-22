@@ -187,6 +187,7 @@ namespace BSPlaylistDownloader
 
             progressBar1.Value = progressBar1.Maximum;
             label5.Text = String.Format("Completed");
+            label6.Text = "";
             label6.Visible = false;
             progressBar2.Visible = false;
         }
@@ -204,13 +205,18 @@ namespace BSPlaylistDownloader
                 string author = playlist.playlistAuthor;
                 int songcount = playlist.songs.Count;
 
-                progressBar2.Value = 0;
-                progressBar2.Maximum = songcount;
+                i++;
+
+                if (label5text != null)
+                    label5text.Report(String.Format("Downloading {0} {1}", title, i + 1));
+
+                //progressBar2.Value = 0;
+                //progressBar2.Maximum = songcount;
                 //label6.Text = String.Format("Downloading {0} songs", songcount);
 
                 //richTextBox1.AppendText(String.Format("Playlist \"{0}\" by {1} loaded, {2} songs. \n", title, author, songcount));
                 if (progress1 != null)
-                    progress1.Report(i++);
+                    progress1.Report(i);
                 Thread.Sleep(500);
             }
         }

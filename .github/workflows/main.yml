@@ -35,4 +35,4 @@ jobs:
         run: nuget restore BSPlaylistDownloader.sln
         
       - name: Build the solution
-        run: msbuild BSPlaylistDownloader.sln
+        run: msbuild BSPlaylistDownloader.sln /p:Configuration=Release
